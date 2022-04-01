@@ -8,6 +8,7 @@ function loadCardForm() {
     const cardForm = mercadopago.cardForm({
         amount: productCost,
         autoMount: true,
+        iframe: true,
         form: {
             id: "form-checkout",
             cardholderName: {
