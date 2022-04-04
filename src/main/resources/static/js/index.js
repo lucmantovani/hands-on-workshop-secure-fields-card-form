@@ -5,6 +5,10 @@ function loadCardForm() {
     const productCost = document.getElementById('amount').value;
     const productDescription = document.getElementById('product-description').innerText;
 
+    const commonStyle = {
+        "fontSize": "1rem"
+    };
+
     const cardForm = mercadopago.cardForm({
         amount: productCost,
         autoMount: true,
@@ -22,14 +26,23 @@ function loadCardForm() {
             cardNumber: {
                 id: "form-checkout__cardNumber",
                 placeholder: "Card number",
+                style: {
+                    ...commonStyle
+                }
             },
             expirationDate: {
                 id: "form-checkout__expirationDate",
                 placeholder: "MM/YYYY",
+                style: {
+                    ...commonStyle
+                }
             },
             securityCode: {
                 id: "form-checkout__securityCode",
                 placeholder: "Security code",
+                style: {
+                    ...commonStyle
+                }
             },
             installments: {
                 id: "form-checkout__installments",
