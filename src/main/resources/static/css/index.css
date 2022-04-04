@@ -402,3 +402,7 @@ footer p a:hover {
 #fail-response, #success-response {
     display: none;
 }
+
+.h40 {
+    height: 40px;
+}
