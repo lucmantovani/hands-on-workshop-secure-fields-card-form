@@ -406,3 +406,11 @@ footer p a:hover {
 .h40 {
     height: 40px;
 }
+
+.validation-error {
+    border-color: red;
+}
+
+#validation-error-messages p {
+    color: red;
+}

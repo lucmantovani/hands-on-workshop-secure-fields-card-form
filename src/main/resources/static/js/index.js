@@ -4,62 +4,66 @@ const mercadopago = new MercadoPago(publicKey);
 function loadCardForm() {
     const productCost = document.getElementById('amount').value;
     const productDescription = document.getElementById('product-description').innerText;
+    const payButton = document.getElementById("form-checkout__submit");
+    const validationErrorMessages = document.getElementById('validation-error-messages');
 
     const commonStyle = {
         "fontSize": "1rem"
+    };
+
+    const form = {
+        id: "form-checkout",
+        cardholderName: {
+            id: "form-checkout__cardholderName",
+            placeholder: "Holder name",
+        },
+        cardholderEmail: {
+            id: "form-checkout__cardholderEmail",
+            placeholder: "E-mail",
+        },
+        cardNumber: {
+            id: "form-checkout__cardNumber",
+            placeholder: "Card number",
+            style: {
+                ...commonStyle
+            }
+        },
+        expirationDate: {
+            id: "form-checkout__expirationDate",
+            placeholder: "MM/YYYY",
+            style: {
+                ...commonStyle
+            }
+        },
+        securityCode: {
+            id: "form-checkout__securityCode",
+            placeholder: "Security code",
+            style: {
+                ...commonStyle
+            }
+        },
+        installments: {
+            id: "form-checkout__installments",
+            placeholder: "Installments",
+        },
+        identificationType: {
+            id: "form-checkout__identificationType",
+        },
+        identificationNumber: {
+            id: "form-checkout__identificationNumber",
+            placeholder: "Identification number",
+        },
+        issuer: {
+            id: "form-checkout__issuer",
+            placeholder: "Issuer",
+        },
     };
 
     const cardForm = mercadopago.cardForm({
         amount: productCost,
         autoMount: true,
         iframe: true,
-        form: {
-            id: "form-checkout",
-            cardholderName: {
-                id: "form-checkout__cardholderName",
-                placeholder: "Holder name",
-            },
-            cardholderEmail: {
-                id: "form-checkout__cardholderEmail",
-                placeholder: "E-mail",
-            },
-            cardNumber: {
-                id: "form-checkout__cardNumber",
-                placeholder: "Card number",
-                style: {
-                    ...commonStyle
-                }
-            },
-            expirationDate: {
-                id: "form-checkout__expirationDate",
-                placeholder: "MM/YYYY",
-                style: {
-                    ...commonStyle
-                }
-            },
-            securityCode: {
-                id: "form-checkout__securityCode",
-                placeholder: "Security code",
-                style: {
-                    ...commonStyle
-                }
-            },
-            installments: {
-                id: "form-checkout__installments",
-                placeholder: "Installments",
-            },
-            identificationType: {
-                id: "form-checkout__identificationType",
-            },
-            identificationNumber: {
-                id: "form-checkout__identificationNumber",
-                placeholder: "Identification number",
-            },
-            issuer: {
-                id: "form-checkout__issuer",
-                placeholder: "Issuer",
-            },
-        },
+        form,
         callbacks: {
             onFormMounted: error => {
                 if (error)
@@ -125,7 +129,6 @@ function loadCardForm() {
             },
             onFetching: (resource) => {
                 console.log("Fetching resource: ", resource);
-                const payButton = document.getElementById("form-checkout__submit");
                 payButton.setAttribute('disabled', true);
                 return () => {
                     payButton.removeAttribute("disabled");
@@ -139,10 +142,47 @@ function loadCardForm() {
 
                 const placeholder = paymentMethods[0].settings[0].security_code.length === 3 ? '123' : '1234';
                 cardForm.update('securityCode', { placeholder });
+            },
+            onValidityChange: (error, field) => {
+                const input = document.getElementById(form[field].id);
+                removeFieldErrorMessages(field, validationErrorMessages);
+                addFieldErrorMessages(field, error, input, validationErrorMessages);
+                enableOrDisablePayButton(validationErrorMessages, payButton);
             }
         },
     });
 };
+
+function removeFieldErrorMessages(field, validationErrorMessages) {
+    Array.from(validationErrorMessages.children).forEach(child => {
+        const shouldRemoveChild = child.id.includes(field);
+        if (shouldRemoveChild) {
+            validationErrorMessages.removeChild(child);
+        }
+    });
+}
+
+function addFieldErrorMessages(field, error, input, validationErrorMessages) {
+    if (error) {
+        input.classList.add('validation-error');
+        error.forEach((e, index) => {
+            const p = document.createElement('p');
+            p.id = `${field}-${index}`;
+            p.innerText = e.message;
+            validationErrorMessages.appendChild(p);
+        });
+    } else {
+        input.classList.remove('validation-error');
+    }
+}
+
+function enableOrDisablePayButton(validationErrorMessages, payButton) {
+    if (validationErrorMessages.children.length > 0) {
+        payButton.setAttribute('disabled', true);
+    } else {
+        payButton.removeAttribute('disabled');
+    }
+}
 
 // Handle transitions
 document.getElementById('checkout-btn').addEventListener('click', function(){
