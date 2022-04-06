@@ -131,6 +131,15 @@ function loadCardForm() {
                     payButton.removeAttribute("disabled");
                 };
             },
+            onPaymentMethodsReceived: (error, paymentMethods) => {
+                if (error) {
+                    console.log(error);
+                    return;
+                }
+
+                const placeholder = paymentMethods[0].settings[0].security_code.length === 3 ? '123' : '1234';
+                cardForm.update('securityCode', { placeholder });
+            }
         },
     });
 };
